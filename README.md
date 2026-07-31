@@ -93,6 +93,7 @@ O projeto ainda está em desenvolvimento e as próximas atualizações serão vo
 | SEM NOME    | RockChip 3228A  | Mali-400 | 1GB     | 8GB   | ✅ SV6051P       |✅     | [Link](https://github.com/educabox/educabox/blob/main/boxes/semnome.md)         |
 | SUNLIGHT    | RockChip 3228A  | Mali-400 | 1GB     | 8GB   | ✅ SV6256P       |✅     | [Link](https://github.com/educabox/educabox/blob/main/boxes/sunlight.md)        |
 | SUPER TV    | RockChip 3229   | Mali-400 | 1GB     | 8GB   | ✅ RTL8189FTV    |✅     | [Link](https://github.com/educabox/educabox/blob/main/boxes/supertv.md)         |
+| SUPER WHITE X | Amlogic S905X | Mali-450 | 2GB     | 8GB   | a confirmar     | a confirmar | [Link](https://github.com/educabox/educabox/blob/main/boxes/superwhitex.md) |
 | TIGRE 2     | Amlogic S905X   | Mali-450 | 2GB     | 16GB  | ✅ RTL8723BS     |❌     | [Link](https://github.com/educabox/educabox/blob/main/boxes/tigre2.md)          |
 | UNITV S1    | RockChip 3229   | Mali-400 | 1GB     | 8GB   | ✅ RTW8723DS     |✅     | [Link](https://github.com/educabox/educabox/blob/main/boxes/unitvs1.md)         |
 
