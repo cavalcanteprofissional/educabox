@@ -7,20 +7,21 @@
 | Codename | SUPER WHITE X |
 | Fabricante | SuperTV / streambus |
 | Modelo | SUPER WHITE X |
-| Placa Mae | p212 |
-| Placa DTB | glx_p212_2g |
-| CPU | Amlogic S905X |
+| Placa Mae | S905XQ4_V1.0 (CLONE - nao e p212 de referencia) |
+| Placa DTB | glx_p212_2g (Android) / meson-gxl-s905x-p212.dtb |
+| CPU | Amlogic S905W (M16B1) |
 | Familia | Cortex-A53 |
 | Velocidade | 100 - 1512 MHz |
 | GPU | Mali-450 MP |
-| Wifi | a confirmar |
-| Memoria | 2GB |
-| Armazenamento | eMMC (4.64GB visivel) |
+| Wifi | SSV6051P (2.4GHz, sem BT) |
+| Ethernet | RTL8201F (10/100) |
+| Memoria | 2GB DDR3 (2x1GB, NANYA provavel) |
+| Armazenamento | eMMC 8GB (estimado, etiqueta cobre o chip) |
 | Resolucao | 1920x1080 |
 
-> Dados obtidos via app CPU-Z no Android original. Placa p212 (mesma do
-> MyTVBox BRAVE 4K). Diferente da SUPER TV (Rockchip RK3229) ja catalogada
-> neste repositorio: esta e a variante Amlogic S905X.
+> CPU-Z (Android) reportava S905X/p212; a inspecao fisica da PCB (apos remover
+> o dissipador do SoC) revelou Amlogic S905W (M16B1) em placa CLONE
+> S905XQ4_V1.0. Detalhes no [registro de hardware](docs/specs-hardware.md).
 
 ## Sistema Operacional
 
@@ -35,7 +36,7 @@
 - [OK] CPU
 - [OK] GPU/HDMI
 - [ ] USB 2.0 (a confirmar no boot)
-- [ ] WIFI (a confirmar)
+- [ ] WIFI (chip SSV6051P identificado; driver no Armbian a confirmar)
 - [OK] ETHERNET
 - [ ] AUDIO (a confirmar)
 
@@ -44,7 +45,7 @@
 O guia abaixo descreve a instalacao de uma imagem limpa da
 [Imagem Oficial Armbian](https://github.com/ophub/amlogic-s9xxx-armbian) com
 os parametros necessarios para que o Armbian seja instalado corretamente na
-TV Box SUPER WHITE X (Amlogic S905X / p212 / 2GB).
+TV Box SUPER WHITE X (Amlogic S905W / placa clone S905XQ4_V1.0 / 2GB).
 
 ### 1. Pre-requisitos
 
