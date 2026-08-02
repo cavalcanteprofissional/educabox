@@ -7,21 +7,22 @@
 | Codename | SUPER WHITE X |
 | Fabricante | SuperTV / streambus |
 | Modelo | SUPER WHITE X |
-| Placa Mae | S905XQ4_V1.0 (CLONE - nao e p212 de referencia) |
+| Placa Mae | HAM905X1A0-B V4 2017-04-1 (CLONE) |
 | Placa DTB | glx_p212_2g (Android) / meson-gxl-s905x-p212.dtb |
-| CPU | Amlogic S905W (M16B1) |
+| CPU | Amlogic S905X (familia GXL) |
 | Familia | Cortex-A53 |
 | Velocidade | 100 - 1512 MHz |
 | GPU | Mali-450 MP |
-| Wifi | SSV6051P (2.4GHz, sem BT) |
-| Ethernet | RTL8201F (10/100) |
-| Memoria | 2GB DDR3 (2x1GB, NANYA provavel) |
-| Armazenamento | eMMC 8GB (estimado, etiqueta cobre o chip) |
+| Wifi | RTL8723BS (2.4GHz + Bluetooth 4.0) |
+| Ethernet | PHY integrado ao SoC + AE-SB1600+ (10/100) |
+| Memoria | 2GB DDR3 (4x Nanya NT5CC256M16EP-EK) |
+| Armazenamento | eMMC Toshiba/Kioxia THGBMFG6C1LBAIL (BGA) ~8GB |
 | Resolucao | 1920x1080 |
 
-> CPU-Z (Android) reportava S905X/p212; a inspecao fisica da PCB (apos remover
-> o dissipador do SoC) revelou Amlogic S905W (M16B1) em placa CLONE
-> S905XQ4_V1.0. Detalhes no [registro de hardware](docs/specs-hardware.md).
+> CPU-Z (Android) reportava S905X/p212; a leitura macro da PCB por IA
+> (2026-08-01) confirmou **S905X**, placa HAM905X1A0-B V4, wifi RTL8723BS e
+> eMMC Toshiba em BGA. O die M16B1 e compartilhado entre S905X e S905W.
+> Detalhes no [registro de hardware](docs/specs-hardware.md).
 
 ## Sistema Operacional
 
@@ -36,7 +37,7 @@
 - [OK] CPU
 - [OK] GPU/HDMI
 - [ ] USB 2.0 (a confirmar no boot)
-- [ ] WIFI (chip SSV6051P identificado; driver no Armbian a confirmar)
+- [ ] WIFI (chip RTL8723BS identificado; driver no Armbian a confirmar)
 - [OK] ETHERNET
 - [ ] AUDIO (a confirmar)
 
@@ -45,7 +46,7 @@
 O guia abaixo descreve a instalacao de uma imagem limpa da
 [Imagem Oficial Armbian](https://github.com/ophub/amlogic-s9xxx-armbian) com
 os parametros necessarios para que o Armbian seja instalado corretamente na
-TV Box SUPER WHITE X (Amlogic S905W / placa clone S905XQ4_V1.0 / 2GB).
+TV Box SUPER WHITE X (Amlogic S905X / placa clone HAM905X1A0-B V4 / 2GB).
 
 ### 1. Pre-requisitos
 
@@ -116,6 +117,15 @@ Metodo alternativo (botao reset/update na TV Box):
 > nao disparou o boot pela midia: a imagem ophub 26.08 nao grava bootloader
 > no setor 0 da midia (apenas MBR + particoes), entao o bootrom nao tem o que
 > carregar. Detalhes no [diagnostico tecnico](docs/diagnostico-tecnico.md).
+>
+> ATUALIZACAO (2026-08-01): o recovery CLI via pinhole e o **Android Recovery
+> padrao** (menu numerado, SuperTV/p212). Nao ha opcao "boot from USB" nele;
+> o chainload do pendrive roda no u-boot NORMAL (escolher "Reboot system now"
+> SEM segurar o reset). O "Reboot to bootloader" volta ao Android; o "Apply
+> update from ADB" falha com `E:Cannot load volume /misc!` (particao /misc
+> ilegivel). A ROM de reposicao escolhida e a **atvXperience v4 S905X**
+> (Realtek/Broadcom) para flash via USB Burning Tool (maskrom pendente de
+> fonte DC para energia estavel).
 
 ### 5. Instalacao Armbian Pendrive para eMMC
 

@@ -1,70 +1,69 @@
 # REGISTRO DE HARDWARE - TV BOXES
 
-> Registro consolidado das especificacoes de hardware das TV boxes do projeto
-> (identificacao visual por fotografia da PCB). Atualizado em 2026-07-31
-> (revisao 2: dissipador do SoC removido -> chip identificado como S905W).
+> Registro consolidado das especificacoes de hardware das TV boxes do projeto.
+> Atualizado em 2026-08-01 (revisao 3: leitura macro da PCB por IA identifica
+> S905X / HAM905X1A0-B / RTL8723BS / eMMC Toshiba BGA).
 
 ## SUPER WHITE X (SuperTV / streambus)
 
-### Identificacao do sistema (Android original)
+### Identificacao do sistema (firmware atual)
 
 | Campo | Valor |
 |-------|:------|
 | Nome do dispositivo | SUPER WHITE X (SuperTV) |
-| Versao Android | 7.1.2 |
+| Versao Android | **6.0.1** (revisado; antes registrado 7.1.2) |
+| Build | MHC19J / 20210318 |
+| Board id / target | SuperTV / p212 / p212 |
 | Software version | 65.09.18 places |
 | Serial Number | 7902853145 |
 | IP (rede local) | 192.168.100.32 |
 | MAC | ee-79-02-85-31-45 |
 
-### Hardware (inspecao visual da PCB - fotos, com dissipador removido)
+### Hardware (leitura macro da PCB por IA + inspecao fisica previa)
 
 | Componente | Detalhe |
 |------------|:--:|
-| Placa Mae (silkscreen) | **S905XQ4_V1.0** (placa CLONE de terceiros, NAO p212 de referencia) |
-| Data de fabricacao | 2018.03.20 |
-| SoC | **Amlogic S905W** (leitura direta do chip apos remover dissipador; marcacao "M16B1 ou similar") - Quad-Core ARM Cortex-A53 |
+| Placa Mae (silkscreen) | **HAM905X1A0-B V4 2017-04-1** (nome interno da PCB; "S905XQ4_V1.0" era referencia generica de clone) |
+| SoC | **Amlogic S905X** (familia GXL; lote `J-T3YH14.OG` / `D0LXCN09808`). Obs.: o mesmo die (M16B1) aparece em S905X e S905W - leitura anterior "S905W" foi por inferencia |
 | GPU | Mali-450 MP |
-| RAM | 2 GB DDR3 (2x 1 GB cada - marca provavel NANYA) |
-| eMMC | 8 GB fisicos (ESTIMADO) - chip coberto pela etiqueta branca de fabrica, marca/modelo indeterminados. 4,64 GB visiveis ao SO |
-| WiFi | **SSV6051P** (Sigmastar) - 802.11 b/g/n 2,4 GHz **SEM Bluetooth** |
-| Ethernet | RTL8201F (Realtek 10/100 Mbps) |
+| RAM | **4x Nanya NT5CC256M16EP-EK** (DDR3 256Mx16, 4Gbit cada) = **2GB** |
+| eMMC | **Toshiba/Kioxia THGBMFG6C1LBAIL** (lote 1917KAE) - **encapsulamento BGA**, sem pinos laterais acessiveis. **Short fisico NAO viavel** |
+| WiFi/Bluetooth | **Realtek RTL8723BS** (combo SDIO, 2.4GHz b/g/n + **Bluetooth 4.0**). Correcao do SSV6051P |
+| Ethernet | PHY integrado ao SoC S905X + transformador **AE-SB1600+** (2009H) no RJ45 (sem PHY discreto) |
 | USB | 2x USB 2.0 |
-| Conector OTG | Porta USB-A imediatamente acima do pinhole de reset (USB macho-macho -> PC) |
+| Conector OTG | Nao confirmado visualmente qual das 2 USB-A e OTG (silkscreen ilegivel). Pista: o outro porta USB-A (nao o acima do pinhole) entra no recovery CLI com reset |
 | Botao reset | Pinhole na borda direita da placa, entre a porta USB-A e a HDMI |
+| Header J3 | 4 pinos (perto do SoC, entre WiFi/BT e indutor `4R7`). **Suspeita forte: UART TX/RX/GND/VCC** - pinagem NAO confirmada, precisa multimetro |
+| Header IR | 3 pinos `IR / GND / 3.3V` (sensor IR ja soldado). NAO e UART, nao usar para debug |
 
 ### Observacoes criticas (firmware)
 
-- **Esta NAO e uma placa p212 original nem um S905X**: e um clone
-  S905XQ4_V1.0 com SoC **S905W** (familia GXL). ROMs Android para "p212" ou
-  "S905X" NAO funcionam (bootloader diferente -> tela preta ou sem boot).
-- **Android de reposicao**: usar ROM **S905W** com suporte ao wifi SSV6051P
-  (ex.: MXQ Pro 4K / X96 Mini / T95 S1 com SSV6051P, ou custom
-  atvXperience/slimBOX). O wifi e secundario para este projeto (usaremos
-  Ethernet), mas a ROM precisa bootar na placa.
-- **Armbian**: a imagem ophub `amlogic_s905x` cobre a familia GXL inteira
-  (S905X/S905D/S905W/S905L) - **a imagem ja baixada permanece valida**. O
-  `u-boot-s905x-s912.bin` (-> `u-boot.ext`) tambem serve para S905W.
-- **DTB**: manter `meson-gxl-s905x-p212.dtb` como primario (o Android usa o
-  dt-id `gxl_p212_2g`, mesmo para S905W; p212 e p281 sao quase identicos).
-  Se houver problema de USB/rede no Armbian, trocar por
-  `meson-gxl-s905w-p281.dtb` (canonico para S905W).
-- **Wifi SSV6051P no Armbian**: depende de driver no kernel ophub
-  (a confirmar no boot). Ethernet RTL8201F e o caminho garantido.
+- **SoC = S905X** (familia GXL). O die M16B1 e compartilhado entre S905X e S905W
+  (o mesmo GXL, binning diferente) - por isso o CPU-Z reportava p212 e a leitura
+  fisica anterior apontou S905W. A leitura macro identifica S905X.
+- **ROM de reposicao deve ser S905X** (NAO S905W): a MXQ Pro S905W baixada fica
+  arquivada como referencia. Usar ROM p212/S905X com suporte ao wifi RTL8723BS,
+  ou atvXperience v4.x S905X.
+- **Wifi RTL8723BS no Armbian**: driver Realtek a confirmar no boot (Ethernet e o
+  caminho garantido).
+- **Armbian**: imagem ophub `amlogic_s905x` cobre a familia GXL inteira
+  (S905X/S905D/S905W/S905L) - **a imagem ja baixada permanece valida**.
+- **eMMC BGA = sem short**: recovery via USB OTG (maskrom) ou debug UART (J3).
 - Backup do Android original via `armbian-ddbr` apos o primeiro boot.
 
 ### Cronologia da identificacao
 
 1. CPU-Z (Android): reportou S905X / placa p212 / 2GB / eMMC 4.64GB
-   (CPU-Z usa o dt-id do firmware: `gxl_p212_2g` - nao reflete o chip fisico)
-2. Visao computacional com dissipador: S905X v1 (M14B2) - **incorreta**
-   (chip coberto, leitura por inferencia)
-3. Remocao do dissipador + visao computacional: **S905W** (M16B1) - **correta**
+2. Inspecao fisica com dissipador removido: inferencia "S905W (M16B1)"
+   - M16B1 e o die GXL compartilhado - nao distingue S905X de S905W
+3. **Leitura macro da PCB por IA (2026-08-01)**: S905X (lote J-T3YH14.OG),
+   placa HAM905X1A0-B V4, wifi RTL8723BS, eMMC Toshiba BGA - revisao 3
+4. Confirmacao definitiva pendente: u-boot/UART imprime o modelo no boot
 
 ## Outras boxes (referencia)
 
 | Box | SoC | Placa | RAM | eMMC | WiFi | Ethernet | Obs |
 |-----|-----|-------|:---:|------|------|:--:|-----|
-| SUPER WHITE X | Amlogic **S905W** | S905XQ4_V1.0 (clone) | 2 GB | ~8 GB est. (etiqueta) | SSV6051P (sem BT) | RTL8201F | 2026-07-31 (fotos, dissipador removido) |
+| SUPER WHITE X | Amlogic **S905X** | HAM905X1A0-B V4 (clone) | 2 GB (4x Nanya) | Toshiba THGBMFG6C1LBAIL ~8GB (BGA) | RTL8723BS (2.4GHz + BT4.0) | PHY integrado + AE-SB1600+ | 2026-08-01 (macro IA + fisico) |
 | SUPER TV | Rockchip RK3229 | a complementar | a complementar | a complementar | a complementar | a complementar | ja catalogada no educabox |
 | MyTVBox BRAVE 4K | Amlogic S905X (p212) | p212 | a complementar | a complementar | a complementar | a complementar | mesmo DTB p212 da SUPER WHITE X |

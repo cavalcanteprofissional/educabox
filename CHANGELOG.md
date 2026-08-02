@@ -1,6 +1,79 @@
-# CHANGELOG - SUPER WHITE X (Amlogic S905W / S905XQ4_V1.0)
+# CHANGELOG - SUPER WHITE X (Amlogic S905X / HAM905X1A0-B V4)
 
 > Registro do que ja foi executado no projeto. Formato: `AAAA-MM-DD`.
+
+## 2026-08-01 (2a sessao) - Diagnostico maskrom completo + ROM S905X escolhida
+
+- Recovery CLI mapeado via pinhole: **Android Recovery padrao** (SuperTV/p212,
+  6.0.1/MHC19J/20210318), menu numerado com 10 opcoes. **NAO e maskrom.**
+  - Opcao 2 "Reboot to bootloader" -> volta ao Android normal (u-boot do
+    clone NAO aciona modo burning por essa opcao)
+  - Opcao 5 "Apply update from ADB" -> entra em `adb sideload` mas falha com
+    `E:Cannot load volume /misc!` (particao /misc ilegivel/corrompida)
+- Diagnostico USB completo (PowerShell): a box aparece SEMPRE como
+  `USB\VID_0000&PID_0002` **error 43** ("Falha na Solicitação de Descritor")
+  no hub interno `VID_05E3` (porta 4) - Windows ve D+/D- puxados mas a box
+  NAO entrega o descritor. `adb devices` vazio. **Nunca** VID_1B8E.
+- CONCLUSAO: box NAO esta em maskrom. Causas provaveis:
+  1. **Energia instavel**: sem fonte DC, box puxa tudo do USB 2.0 (500mA);
+     eMMC/DDR afundam a tensao na enumeração -> error 43 (mais provavel)
+  2. **Porta conectada e host, nao OTG**: ligar host↔host no PC nunca enumera
+- ATENCAO registrada: as 2 USB-A da box sao hosts; conectar as DUAS ao PC ao
+  mesmo tempo cria host↔host + retroalimentacao 5V (risco de dano) - NAO fazer.
+- **ROM de reposicao ESCOLHIDA**: atvXperience v4 (AndroidTV 9) **S905X**,
+  versao **Realtek/Broadcom Multi Wi-Fi** (RTL8723BS), post #1 do XDA thread
+  4175723. Links MEGA completos com chave confirmados no HTML do post:
+  - Realtek: `mega.nz/file/TEw3UASD#1gtjWEWeKM_X24-48wLZyuiPl6_FMt2rksCxt1357dk`
+  - Ampak fallback: `mega.nz/file/yYxBVYZR#B2J-KShlyUFrrc-fUdcZ-vkUS9-KFSis_so_9YAn40g`
+  - Download NO NAVEGADOR (escolha do usuario); link aberto, hash a validar
+- Link direto do site oficial (atvX v5 BETA1, WiFi universal)
+  `download.umedialink.com/...zip` esta **fora do ar** (HTTP 522 Cloudflare,
+  3 tentativas). GitHub `atvXperience/downloads` e so mirror (README).
+- Imagem Armbian confirmada (2026-08-01): mesma da Etapa 1
+  (`Armbian_26.08.0_amlogic_s905x_bookworm_6.18.38_server_2026.07.16.img.gz`)
+  localizada em `releases/download/Armbian_bookworm_arm64_server_2026.07/`
+- Decisao: boot Armbian via pendrive NAO passa pelo recovery; usar opcao 1
+  ("Reboot system now") SEM segurar reset (chainload roda no u-boot normal).
+- BLOQUEIO ATUAL: energia DC/hub alimentado para maskrom (usuario arranjara
+  depois). Multimetro descarregado (UART J3 fica para depois).
+- Docs atualizados: `TODO.md` (Etapa 8 reestruturada + bloqueio + Etapa 7),
+  `CHANGELOG.md`. `docs/specs-hardware.md` e `README.md`/`boxes/` ja estavam
+  atualizados na 1a sessao (ainda sem commit).
+- Sem commit/PR (aguardando autorizacao do usuario).
+
+## 2026-08-01 - Leitura macro da PCB corrige specs + USB Burning Tool funcional
+
+- Leitura macro da PCB por IA (imagens de `imagens/`) corrige o hardware:
+  - **SoC = Amlogic S905X** (lote J-T3YH14.OG) - NAO S905W; die M16B1 e
+    compartilhado entre S905X e S905W (mesmo GXL, binning diferente), por isso
+    a inspecao fisica anterior leu "S905W" por inferencia
+  - **Placa = HAM905X1A0-B V4 2017-04-1** (silkscreen real)
+  - **Wifi = Realtek RTL8723BS** (2.4GHz + Bluetooth 4.0) - NAO SSV6051P
+  - **RAM = 4x Nanya NT5CC256M16EP-EK** (2GB DDR3)
+  - **eMMC = Toshiba/Kioxia THGBMFG6C1LBAIL** em **BGA** -> **short fisico
+    CANCELADO** (sem pinos laterais acessiveis)
+  - Ethernet = PHY integrado ao SoC + trafo AE-SB1600+ (NAO RTL8201F discreto)
+  - Firmware atual: Android 6.0.1, build MHC19J/20210318 (SuperTV/p212)
+  - Novo: header J3 (4 pinos, suspeito UART) + header IR (3 pinos)
+- Decisao: **ROM de reposicao deve ser S905X**; MXQ Pro S905W (725MB) arquivada
+  como referencia, NAO usar. Buscar ROM p212/S905X com RTL8723BS ou
+  atvXperience v4.x S905X.
+- USB Burning Tool funcional: Microsoft Visual C++ 2010 Redistributable (x86)
+  instalado -> `mfc100.dll`/`msvcp100.dll` agora em SysWOW64 (erro resolvido)
+- Diagnostico maskrom da sessao:
+  - Box em porta USB 2.0 direta da placa-mae (VID_05E3 = chip hub interno da
+    placa, NAO hub externo)
+  - "Reboot to bootloader" / "Update via adb" do recovery CLI faz a box
+    enumerar como `VID_0000&PID_0002` error 43 (falha de descritor) - ainda
+    NAO como `VID_1B8E` (WorldCup Device); `adb devices` vazio
+  - Descoberta: o **outro** porta USB-A (NAO o acima do pinhole) entra no
+    recovery CLI com reset -> provavelmente e a OTG/device real
+  - Suspeita: energia instavel (box so com USB, sem DC) e/ou porta OTG errada
+  - Pendente: entrar em maskrom na porta OTG correta + instalar driver
+    `android_winusb.inf` (VID_1B8E&PID_C004) quando a box aparecer
+- Docs atualizados: `docs/specs-hardware.md` (revisao 3), `boxes/`,
+  `README.md`, `TODO.md` (Etapa 8 reestruturada, curto cancelado)
+- Sem commit/PR (aguardando autorizacao do usuario)
 
 ## 2026-07-31 - Sessao interrompida: instalacao de tool/driver travada
 
